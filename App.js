@@ -1,11 +1,29 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
+import React, { useState, useEffect } from "react";
 
 export default function App() {
+
+  const [text, setText] = useState("");
+  const [showText, setShowText] = useState(false);
+
+  const onChangeText = (input) => {
+    setShowText(false)
+    setText(input)
+  }
+
+  const buttonFunc = () => {
+    setShowText(true);
+  }
+
   return (
     <View style={styles.container}>
-      <Text>TESTIÄ LÄPPÄRILLÄ AAA ÄÄÄÄ</Text>
-      <Text>AAAA</Text>
+      <TextInput style={{width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 10}}
+      onChangeText={onChangeText}
+      value={text}/>
+      <Button onPress={() => buttonFunc()} title="Testi"></Button>
+      {showText &&
+      <Text>{text}</Text>}
     </View>
   );
 }
