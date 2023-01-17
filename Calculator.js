@@ -1,11 +1,34 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View, Button } from 'react-native';
+import React, { useState } from 'react'
 
-export default function App() {
+export default function Calculator() {
+  const [result, setResult] = useState()
+  const [numberOne, setNumberOne] = useState("")
+  const [numberTwo, setNumberTwo] = useState("")
+  let total = Number(numberOne) + Number(numberTwo)
+  let totalDec = Number(numberOne) - Number(numberTwo)
+ 
+  const add = () => {
+    setResult("Result: " + total)
+  }
+
+  const decrement = () => {
+    setResult("Result: " + totalDec)
+  }
+
   return (
     <View style={styles.container}>
-      <Text>TESTIÄASDLÖASDASDADSDASD</Text>
-      <Text>AAAA</Text>
+      <View>
+        <Text>{result}</Text>
+        <TextInput keyboardType='numeric' onChangeText={text => setNumberOne(text)}
+        style={{ width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }} />
+        <TextInput  keyboardType='numeric' onChangeText={text => setNumberTwo(text)}
+        style={{ width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }} />
+      </View>
+      <View style={{flexDirection: 'row'}}>
+        <Button onPress={add} title="+"></Button>
+        <Button onPress={decrement} title="-"></Button>
+      </View>
     </View>
   );
 }

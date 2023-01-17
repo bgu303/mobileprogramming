@@ -1,9 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput, Alert } from 'react-native';
 import React, { useState, useEffect } from "react";
 
 export default function App() {
-
+  
   const [text, setText] = useState("");
   const [showText, setShowText] = useState(false);
 
@@ -18,10 +18,15 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      <View>
+        <Text>
+          Hello world!
+        </Text>
+      </View>
       <TextInput style={{width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 10}}
       onChangeText={onChangeText}
       value={text}/>
-      <Button onPress={() => buttonFunc()} title="Testi"></Button>
+      <Button onPress={buttonFunc} title="Testi"></Button>
       {showText &&
       <Text>{text}</Text>}
     </View>
