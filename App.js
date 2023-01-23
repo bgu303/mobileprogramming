@@ -1,35 +1,46 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, TextInput, Alert } from 'react-native';
-import React, { useState, useEffect } from "react";
+import { StyleSheet, Text, TextInput, View, Button, FlatList } from 'react-native';
+import React, { useState } from 'react'
 
-export default function App() {
-  
-  const [text, setText] = useState("");
-  const [showText, setShowText] = useState(false);
+export default function Calculator() {
+  const [result, setResult] = useState()
+  const [data, setData] = useState([])
+  const [numberOne, setNumberOne] = useState("")
+  const [numberTwo, setNumberTwo] = useState("")
+  let total = Number(numberOne) + Number(numberTwo)
+  let totalDec = Number(numberOne) - Number(numberTwo)
 
-  const onChangeText = (input) => {
-    setShowText(false)
-    setText(input)
+  const add = () => {
+    setResult("Result: " + total)
+    setData([...data, { key: `${numberOne} + ${numberTwo} = ${total}` }])
   }
 
-  const buttonFunc = () => {
-    setShowText(true);
+  const decrement = () => {
+    setResult("Result: " + totalDec)
+    setData([...data, { key: `${numberOne} - ${numberTwo} = ${totalDec}` }])
   }
 
   return (
     <View style={styles.container}>
       <View>
-        <Text>
-          Hello world!
-        </Text>
+        <Text>{result}</Text>
+        <TextInput keyboardType='numeric' onChangeText={text => setNumberOne(text)} value={numberOne}
+          style={{ width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }} />
+        <TextInput keyboardType='numeric' onChangeText={text => setNumberTwo(text)}
+          style={{ width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }} />
       </View>
-      <TextInput style={{width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 10}}
-      onChangeText={onChangeText}
-      value={text}/>
-      <Button onPress={buttonFunc} title="Testi"></Button>
-      {showText &&
-      <Text>{text}</Text>}
+      <View style={{ flexDirection: 'row' }}>
+        <Button onPress={add} title="+"></Button>
+        <Button onPress={decrement} title="-"></Button>
+      </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'center'}}>
+        <FlatList
+          data={data}
+          renderItem={({item}) =><Text>{item.key}</Text>}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      </View>
     </View>
+    
   );
 }
 
