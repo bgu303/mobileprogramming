@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TextInput, View, Button, FlatList, Alert } from 'react-native';
 import React, { useState } from 'react'
 
-export default function CalculatorWithHistory () {
+export default function CalculatorWithHistory() {
   const [result, setResult] = useState()
   const [data, setData] = useState([])
   const [numberOne, setNumberOne] = useState("")
@@ -49,7 +49,7 @@ export default function CalculatorWithHistory () {
         <TextInput keyboardType='numeric' onChangeText={text => setNumberTwo(text)} value={numberTwo}
           style={{ width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }} />
       </View>
-      <View style={{ flexDirection: 'row' }}>
+      <View style={{ flexDirection: 'row', width: 150, justifyContent: 'space-around' }}>
         <Button onPress={add} title="+"></Button>
         <Button onPress={decrement} title="-"></Button>
       </View>
@@ -64,7 +64,6 @@ export default function CalculatorWithHistory () {
         />
       </View>
     </View>
-    
   );
 }
 
