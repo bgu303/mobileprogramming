@@ -1,66 +1,78 @@
-import { Text, View, TextInput, Button } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-import { useEffect, useState, useRef } from 'react';
-import { GEOLOC_API_KEY } from '@env'
+import { AsyncStorage } from '@react-native-async-storage/async-storage';
+import * as SQLite from 'expo-sqlite';
+import { StyleSheet, Text, TextInput, View, Button, FlatList } from 'react-native';
+import React, { useState, useEffect } from "react";
 
-export default function App() {
 
-    const [address, setAddress] = useState({
-        latitude: "",
-        longitude: "",
-        streetName: ""
-    })
-    const [typedAddress, setTypedAddress] = useState();
-    const mapRef = useRef();
+export default function CourseList() {
 
-    const findAddress = () => {
-        fetch(`https://www.mapquestapi.com/geocoding/v1/address?key=${GEOLOC_API_KEY}&inFormat=kvp&outFormat=json&location=${typedAddress}&thumbMaps=false`, {
-        })
-        .then(response => response.json())
-        .then (result => {
-            setAddress({
-            latitude: result.results[0].locations[0].displayLatLng.lat,
-            longitude: result.results[0].locations[0].displayLatLng.lng,
-            streetName: result.results[0].locations[0].street
-        })
-        const region = {
-            latitude: result.results[0].locations[0].displayLatLng.lat,
-            longitude: result.results[0].locations[0].displayLatLng.lng,
-            latitudeDelta: 0.0322,
-            longitudeDelta: 0.0221,
-          };
-          mapRef.current.animateToRegion(region, 1000);
-        })
-        .catch(error => console.log("error", error))
+    const db = SQLite.openDatabase('coursedb.db');
+    const [credit, setCredit] = useState("");
+    const [title, setTitle] = useState("");
+    const [courses, setCourses] = useState("");
+
+    useEffect(() => {
+        db.transaction(tx => {
+            tx.executeSql('CREATE TABLE IF NOT EXISTS Course (id INTEGER PRIMARY KEY NOT NULL, credits INT, title TEXT);');
+        }, null, updateList)
+    }, [])
+
+    const saveItem = () => {
+        db.transaction(tx => {
+            tx.executeSql('INSERT INTO Course (credits, title) VALUES (?, ?);',
+                [parseInt(credit), title]);
+        }, null, updateList)
     }
 
+    const updateList = () => {
+        db.transaction(tx => {
+            tx.executeSql('select * from course;', [], (_, { rows }) =>
+                setCourses(rows._array)
+            );
+        }, null, null);
+    }
+
+    const deleteItem = (id) => {
+        db.transaction(tx => {
+            tx.executeSql('DELETE FROM Course WHERE id = ?;', [id])
+        }, null, updateList)
+    }
+
+
     return (
-    <View style={{ flex: 1 }}>
-        <MapView
-            ref={mapRef}
-            style={{ flex: 1 }}
-            initialRegion={{
-                latitude: 60.200692,
-                longitude: 24.934302,
-                latitudeDelta: 0.0322,
-                longitudeDelta: 0.0221,
-            }}> 
-            <Marker
-                coordinate={{
-                    latitude: Number(address.latitude),
-                    longitude: Number(address.longitude)}}
-                    title={address.streetName}/>
-        </MapView>
-        <View>
-        <TextInput
-                value={typedAddress}
-                onChangeText={text => setTypedAddress(text)}
-                style={{ width: 600, borderColor: 'gray', borderWidth: 1, marginBottom: 15, marginTop: 20, justifyContent: 'center' }}
-            />
-        <Button title="Show" onPress={findAddress}></Button>
+        <View style={styles.container}>
+            <View>
+                <TextInput
+                    style={{ width: 150, borderColor: 'gray', borderWidth: 1, marginBottom: 20 }}
+                    placeholder='Title'
+                    onChangeText={title => setTitle(title)} />
+                <TextInput
+                    style={{ width: 150, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }}
+                    placeholder='Credits'
+                    onChangeText={credit => setCredit(credit)} />
+            </View>
+            <Button onPress={saveItem} title='Save' />
+            <View>
+                <FlatList
+                    keyExtractor={item => item.id.toString()}
+                    renderItem={({ item }) =>
+                        <View>
+                            <Text>{item.title},{item.credits} </Text>
+                            <Text style={{ color: '#0000ff' }} onPress={() => deleteItem(item.id)}>done</Text>
+                        </View>}
+                    data={courses}
+                />
+            </View>
         </View>
-    </View>
     );
 }
 
-
+const styles = StyleSheet.create({
+    container: {
+        marginTop: 150,
+        flex: 1,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+});
