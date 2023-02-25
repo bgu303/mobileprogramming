@@ -4,8 +4,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from'@react-navigation/native-stack';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import CalculatorHome from './components/CalculatorHome';
-import CalculatorHistory from './components/CalculatorHistory';
+import CalculatorHome from './CalculatorHome';
+import CalculatorHistory from './CalculatorHistory';
 
 const Stack = createNativeStackNavigator();
 

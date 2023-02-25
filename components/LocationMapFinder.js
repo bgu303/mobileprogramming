@@ -22,8 +22,12 @@ export default function App() {
                 Alert.alert('No permission to get location')
                 return;
             }
-            let location = await Location.getCurrentPositionAsync({});
+            let location = await Location.getCurrentPositionAsync();
             setLocation(location);
+            setAddress({
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude
+            })
         })();
     }, [])
 
