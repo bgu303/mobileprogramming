@@ -3,9 +3,7 @@ import * as SQLite from 'expo-sqlite';
 import { StyleSheet, Text, TextInput, View, Button, FlatList } from 'react-native';
 import React, { useState, useEffect } from "react";
 
-
 export default function CourseList() {
-
     const db = SQLite.openDatabase('coursedb.db');
     const [credit, setCredit] = useState("");
     const [title, setTitle] = useState("");
@@ -37,7 +35,6 @@ export default function CourseList() {
             tx.executeSql('DELETE FROM Course WHERE id = ?;', [id])
         }, null, updateList)
     }
-
 
     return (
         <View style={styles.container}>

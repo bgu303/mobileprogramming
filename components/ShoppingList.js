@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TextInput, View, Button, FlatList } from 'react-native';
 import React, { useState } from 'react'
 
-export default function Calculator() {
+export default function ShoppingList() {
   
     const [shoppingListItem, setShoppingListItem] = useState("")
     const [shoppingList, setShoppingList] = useState([])
