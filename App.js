@@ -29,9 +29,17 @@ export default function App() {
     const [shoppingList, setShoppingList] = useState([])
 
     const saveItem = () => {
-        push(
-            ref(database, 'ShoppingList/'),
-            { 'item': item, 'amount': amount });
+        const newItem = {
+            item: item,
+            amount: amount,
+            id: null
+          };
+        const test = push(ref(database, 'ShoppingList/'), newItem);
+        const key = test.key;
+        console.log(key)
+          
+        newItem.id = key;
+        console.log(newItem)
         setItem("")
         setAmount("")
     }
@@ -40,15 +48,23 @@ export default function App() {
         const itemsRef = ref(database, 'ShoppingList/');
         onValue(itemsRef, (snapshot) => {
             const data = snapshot.val();
-            setShoppingList(Object.values(data));
+            if (data) {
+                setShoppingList(Object.values(data));
+            } else {
+                setShoppingList([]);
+            }
         })
     }, []);
 
     const deleteItem = (id) => {
         const itemRef = ref(database, 'ShoppingList/' + id);
         remove(itemRef)
-          .then(() => {
-            Alert.alert("Success!", "Successful item deletion!")
+          .then((response) => {
+            if (response !== null) {
+                Alert.alert("Success!", "Successful item deletion!")
+            } else {
+                Alert.alert("Not Success!", "Something went wrong!")
+            }
           })
           .catch((error) => {
             console.error('Error deleting item: ', error);
@@ -71,7 +87,7 @@ export default function App() {
                     renderItem={({ item }) =>
                         <View style={{ flex: 1, flexDirection: "row" }}>
                             <Text>{item.item}, {item.amount}</Text>
-                            <Text onPress={() => deleteItem(item.id)} style={{marginLeft: 20, color: 'red'}}>Delete</Text>
+                            <Text onPress={() => deleteItem()} style={{marginLeft: 20, color: 'red'}}>Delete</Text>
                         </View>
                     }
                     data={shoppingList}
