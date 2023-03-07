@@ -1,67 +1,84 @@
-import { AsyncStorage } from '@react-native-async-storage/async-storage';
-import * as SQLite from 'expo-sqlite';
-import { StyleSheet, Text, TextInput, View, Button, FlatList } from 'react-native';
-import React, { useState, useEffect } from "react";
+import { StyleSheet, View, Text, TextInput, Button, Alert, FlatList } from 'react-native';
+import React, { useState, useEffect, useRef } from "react";
+import { initializeApp } from 'firebase/app';
+import { getDatabase, push, ref, onValue, remove } from 'firebase/database';
+import { FIREBASE_API_KEY } from '@env'
 
-export default function CourseList() {
-    const db = SQLite.openDatabase('coursedb.db');
-    const [credit, setCredit] = useState("");
-    const [title, setTitle] = useState("");
-    const [courses, setCourses] = useState("");
 
-    useEffect(() => {
-        db.transaction(tx => {
-            tx.executeSql('CREATE TABLE IF NOT EXISTS Course (id INTEGER PRIMARY KEY NOT NULL, credits INT, title TEXT);');
-        }, null, updateList)
-    }, [])
+const firebaseConfig = {
+    apiKey: FIREBASE_API_KEY,
+    authDomain: "mobile-programming-stuff.firebaseapp.com",
+    databaseURL: "https://mobile-programming-stuff-default-rtdb.europe-west1.firebasedatabase.app/",
+    projectId: "mobile-programming-stuff",
+    storageBucket: "mobile-programming-stuff.appspot.com",
+    messagingSenderId: "733070540878",
+    appId: "1:733070540878:web:ddaff0677f398abe2a831f",
+    measurementId: "G-V073Q0DF20"
+};
+
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
+export default function App() {
+
+    ref(database, 'ShoppingList/')
+
+    const [item, setItem] = useState('');
+    const [amount, setAmount] = useState('');
+    const [shoppingList, setShoppingList] = useState([])
 
     const saveItem = () => {
-        db.transaction(tx => {
-            tx.executeSql('INSERT INTO Course (credits, title) VALUES (?, ?);',
-                [parseInt(credit), title]);
-        }, null, updateList)
+        push(
+            ref(database, 'ShoppingList/'),
+            { 'item': item, 'amount': amount });
+        setItem("")
+        setAmount("")
     }
 
-    const updateList = () => {
-        db.transaction(tx => {
-            tx.executeSql('select * from course;', [], (_, { rows }) =>
-                setCourses(rows._array)
-            );
-        }, null, null);
-    }
+    useEffect(() => {
+        const itemsRef = ref(database, 'ShoppingList/');
+        onValue(itemsRef, (snapshot) => {
+            const data = snapshot.val();
+            setShoppingList(Object.values(data));
+        })
+    }, []);
 
     const deleteItem = (id) => {
-        db.transaction(tx => {
-            tx.executeSql('DELETE FROM Course WHERE id = ?;', [id])
-        }, null, updateList)
-    }
+        const itemRef = ref(database, 'ShoppingList/' + id);
+        remove(itemRef)
+          .then(() => {
+            Alert.alert("Success!", "Successful item deletion!")
+          })
+          .catch((error) => {
+            console.error('Error deleting item: ', error);
+          });
+      }
 
     return (
         <View style={styles.container}>
-            <View>
-                <TextInput
-                    style={{ width: 150, borderColor: 'gray', borderWidth: 1, marginBottom: 20 }}
-                    placeholder='Title'
-                    onChangeText={title => setTitle(title)} />
-                <TextInput
-                    style={{ width: 150, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }}
-                    placeholder='Credits'
-                    onChangeText={credit => setCredit(credit)} />
-            </View>
-            <Button onPress={saveItem} title='Save' />
+            <TextInput style={{ width: 150, borderColor: 'gray', borderWidth: 1 }}
+                placeholder='Shopping item'
+                onChangeText={item => setItem(item)}
+                value={item} />
+            <TextInput style={{ width: 150, borderColor: 'gray', borderWidth: 1, marginBottom: 20 }}
+                placeholder='Amount'
+                onChangeText={amount => setAmount(amount)}
+                value={amount} />
+            <Button onPress={saveItem} title="Save" />
             <View>
                 <FlatList
-                    keyExtractor={item => item.id.toString()}
                     renderItem={({ item }) =>
-                        <View>
-                            <Text>{item.title},{item.credits} </Text>
-                            <Text style={{ color: '#0000ff' }} onPress={() => deleteItem(item.id)}>done</Text>
-                        </View>}
-                    data={courses}
+                        <View style={{ flex: 1, flexDirection: "row" }}>
+                            <Text>{item.item}, {item.amount}</Text>
+                            <Text onPress={() => deleteItem(item.id)} style={{marginLeft: 20, color: 'red'}}>Delete</Text>
+                        </View>
+                    }
+                    data={shoppingList}
                 />
             </View>
         </View>
-    );
+    )
 }
 
 const styles = StyleSheet.create({
