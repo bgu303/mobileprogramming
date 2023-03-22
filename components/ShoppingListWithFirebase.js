@@ -4,7 +4,6 @@ import { initializeApp } from 'firebase/app';
 import { getDatabase, push, ref, onValue, remove } from 'firebase/database';
 import { FIREBASE_API_KEY } from '@env'
 
-
 const firebaseConfig = {
     apiKey: FIREBASE_API_KEY,
     authDomain: "mobile-programming-stuff.firebaseapp.com",
@@ -15,7 +14,6 @@ const firebaseConfig = {
     appId: "1:733070540878:web:ddaff0677f398abe2a831f",
     measurementId: "G-V073Q0DF20"
 };
-
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
@@ -56,8 +54,6 @@ export default function App() {
             }
         })
     }, []);
-
-    console.log(shoppingList)
 
     const deleteItem = (id) => {
         const itemRef = ref(database, 'ShoppingList/' + id);
